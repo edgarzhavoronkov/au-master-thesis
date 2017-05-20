@@ -8,7 +8,7 @@
   % во-первых, класс наследуется от extarticle
   \def\my@fontsize{14pt}
   \def\my@baseclass{extarticle}
-  
+
   % во-вторых, титульный лист должен набираться так, как будто
   % используется шрифт 12pt - иначе он выглядит совсем конским
   % Для этого мы явно загружаем size12.clo, но так как он на такое не рассчитан,
@@ -20,11 +20,11 @@
     \let\newcommand\renewcommand
     \makeatletter
     \input{size12.clo}%
-    \makeatother  
+    \makeatother
     \let\newcommand\orignewcommand
   }
   % в-третьих, после того как титульный лист сгенерирован, нужно снова вернуться
-  % к базовому шрифту 14pt. Применяется такой же хак: загрузи size14.clo 
+  % к базовому шрифту 14pt. Применяется такой же хак: загрузи size14.clo
   % временно переопределив \newcommand => \renewcommand
   \def\my@body14pt{
     % отдельное внимание подавлению команды \NeedsTeXFormat, которая требует
@@ -33,7 +33,7 @@
     \let\newcommand\renewcommand
     \makeatletter
     \input{size14.clo}%
-    \makeatother  
+    \makeatother
     \let\newcommand\orignewcommand
     \let\NeedsTeXFormat\origNeedsTeXFormat
   }
@@ -41,8 +41,8 @@
 \ProcessOptions\relax
 \LoadClass[a4paper,\my@fontsize]{\my@baseclass}
 
-% Поля настраиваются командами \newgeometry во время и после генерации титульных 
-% страниц и 
+% Поля настраиваются командами \newgeometry во время и после генерации титульных
+% страниц и
 \usepackage[a4paper]{geometry}
 
 \usepackage{fancyhdr}
@@ -68,7 +68,7 @@
 \usepackage[colorlinks=true,urlcolor=black,linkcolor=black,filecolor=black,citecolor=black]{hyperref}
 
 %% Включение графических файлов
-%% we don't need to load graphicx since it will be loaded by xunicode (which is loaded by fontspec) 
+%% we don't need to load graphicx since it will be loaded by xunicode (which is loaded by fontspec)
 \usepackage[titletoc]{appendix}
 
 %% Эта команда добавляет отчеркнутое место для подписи после имени
@@ -166,12 +166,12 @@
 \begin{center}
     \vspace*{0.25\textheight}
     {\Large\my@title@author@ru}
-    
+
     \vskip 2em
     {\Huge \@title\\}
-    
+
     \vskip 1em
-    {\large 
+    {\large
     \ifthenelse{\equal{\my@title@type@ru}{coursework}}
     {Курсовая работа}
     {\ifthenelse{\equal{\my@title@type@ru}{diploma}}
@@ -184,11 +184,11 @@
     \\}
     \vskip 2em
     \ifthenelse{\equal{\my@title@type@ru}{coursework}}
-    {\normalsize \raggedleft 
+    {\normalsize \raggedleft
     Научный руководитель:\\
     \my@title@supervisorPosition@ru\ \my@title@supervisor@ru
     }
-    {\normalsize \raggedleft 
+    {\normalsize \raggedleft
     Допущена к защите.\\
     Зав. кафедрой:\\
     \my@title@chairHeadPosition@ru\ \my@title@chairHead@ru\sigspace
@@ -218,12 +218,12 @@
   \begin{center}
     \vspace*{0.25\textheight}
     {\Large\my@title@author@en\\}
-    
+
     \vskip 2em
     {\Huge \@title \\}
-    
+
     \vskip 1em
-    {\large 
+    {\large
     \ifthenelse{\equal{\my@title@type@en}{coursework}}
     {Course Work}
     {\ifthenelse{\equal{\my@title@type@en}{diploma}}
@@ -236,11 +236,11 @@
     \\}
     \vskip 2em
     \ifthenelse{\equal{\my@title@type@en}{coursework}}
-    {\normalsize \raggedleft 
+    {\normalsize \raggedleft
     Scientific supervisor:\\
     \my@title@supervisorPosition@en\ \my@title@supervisor@en
     }
-    {\normalsize \raggedleft 
+    {\normalsize \raggedleft
     Admitted for defence.\\
     Head of the chair:\\
     \my@title@chairHeadPosition@en\ \my@title@chairHead@en\sigspace
@@ -267,13 +267,13 @@
 \begin{spacing}{1.0}
 \ifthenelse{\isundefined{\my@title@title@ru}}{}{
   % fancyhdr set height of the top/bottom headers automatically
-  % so set them to zero to be sure that he does it 
+  % so set them to zero to be sure that he does it
   \setlength{\headheight}{0pt}
   \setlength{\footskip}{0pt}
   \maketitleru\addtocounter{titlepages}{1}
 }
 \ifthenelse{\isundefined{\my@title@title@en}}{}{
-  % fancyhdr already set height of the top/bottom headers on the previous page (titleru) 
+  % fancyhdr already set height of the top/bottom headers on the previous page (titleru)
   % but on this page the headers' height might be different
   % so set them to zero again in order to make fancyhdr to do it
   \setlength{\headheight}{0pt}
@@ -307,3 +307,13 @@
 
 \let\savenumberline\numberline
 \def\numberline#1{\savenumberline{#1.}}
+
+%%  Всякие пакеты для математики
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{faktor}
+\usepackage{bussproofs}
+
+%% альфа и бета эквивалентности
+\newcommand{\alphaeq}{=_{\alpha}}
+\newcommand{\betaeq}{=_{\beta}}
