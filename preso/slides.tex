@@ -1,0 +1,218 @@
+\documentclass{beamer}
+\usetheme{CambridgeUS}
+
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\usepackage{xecyr}
+\usepackage{hyperref}
+
+\setmainfont[Mapping=tex-text]{CMU Serif}
+\setsansfont[Mapping=tex-text]{CMU Sans Serif}                %% задаёт шрифт без засечек
+\setmonofont[Mapping=tex-text]{CMU Typewriter Text}           %% задаёт моноширинный шрифт
+\usepackage{polyglossia}
+
+\setdefaultlanguage{russian}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+
+\usepackage{faktor}
+\usepackage{stmaryrd}
+
+\newcommand{\alphaeq}{=_{\alpha}}
+\newcommand{\betaeq}{=_{\beta}}
+
+\begin{document}
+\title[Формализация $\lambda$-исчисления]{Реализация сравнения различных представлений лямбда-термов}
+\subtitle{предварительные результаты}
+\author[Жаворонков Э.А.]{студент: Жаворонков Эдгар\\{\footnotesize\textcolor{gray}{научный руководитель: В.И. Исаев}}}
+\date{11/05/2017}
+\institute{СПб АУ НОЦНТ РАН}
+
+\frame{\titlepage}
+
+\begin{frame}\frametitle{Введение. $\lambda$-термы и связанные определения}
+    \begin{enumerate}
+        \item Термы $\lambda$-исчисления строятся индуктивно, путем применения и создания анонимных функций.
+        \item Пусть $V = \{x, y, \dots\}$ -- счетное множество переменных. Тогда множество $\lambda$-термов в абстрактном синтаксисе определяется как $\Lambda ::= V | \Lambda\ \Lambda | \lambda V. \Lambda$
+        \item Примеры термов -- $\lambda f g x. f\ x\ (g\ x)$ или $(\lambda x. f\ (x\ x))(\lambda x. f\ (x\ x))$.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}\frametitle{Введение. $\lambda$-термы и связанные определения(2)}
+    \begin{enumerate}
+        \item Переменная, которая стоит после $\lambda$ называется \textit{связанной}. Соответственно, до абстракции она была \textit{свободной}.
+        \item В первом примере $f$ --- связана, а во втором --- свободна.
+        \item Имена связанных переменных не важны. $\lambda f g x.f\ x\ (g\ x)$ при применении к аргументам ведет себя так же, как  и $\lambda x y z. x\ z\ (y\ z)$.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}\frametitle{Введение. $\lambda$-термы и связанные определения(3)}
+    \begin{enumerate}
+        \item На $\Lambda$ можно задать отношение $\alpha$-эквивалентности, которое и говорит о том, что имена формальных параметров лямбд не важны.
+        \item Для $\lambda$-термов определена операция подстановки $M[x \mapsto N]$. Она описывает, что происходит когда абстракция применяется к аргументу.
+        \item Мы записывали термы, используя именованные переменные. Но это не единственный способ записи. Помимо него есть еще неименованное представление и монадическое. Но о них позже.
+    \end{enumerate}
+\end{frame}
+
+% Здесь ты должен ясно ответить на вопрос "Зачем это надо"
+\begin{frame}\frametitle{Мотивация}
+    \begin{enumerate}
+        \item Соответствие Карри-Говарда говорит нам о том, что между логикой и теорией типов есть прямая связь.
+        \item Основная мысль состоит в том, что для доказательства утверждений мы можем писать $\lambda$-термы(читай -- программы).
+        \item Чем больше логических связок у нас есть, тем более мощные теории типов приходится использовать.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}\frametitle{Мотивация(2)}
+    \begin{enumerate}
+        \item Теории с зависимыми типами позволяют доказывать утверждения в которых есть кванторы($\forall x P(x)$ или $\exists x P(x)$).
+        \item Известные примеры таких теорий -- исчисление конструкций или интуиционистская теория типов Мартин-Лёфа.
+        \item Их расширения лежат в основе систем автоматического доказательства теорем Coq и Agda.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}\frametitle{Мотивация(3)}
+    \begin{enumerate}
+        \item Для доказательств иногда полезна функциональная экстенсиональность.
+        \item В Agda она постулируется, притом сами разработчики языка не рекомендуют использовать постулаты по очевидным причинам.
+        \item Хочется доказывать свойства термов, не используя "плохие" конструкции. Есть ли такая теория типов(такой язык)?
+        \item <2-> Да, есть. Он называется Vclang\only<2->\footnote{https://github.com/valis/vclang} и основан на гомотопической теории типов с типом интервала. 
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}\frametitle{Цель и задачи}
+    \textbf{Цель работы} -- формализовать различные представления $\lambda$-термов и их свойства.
+    
+    \bigskip
+    
+    \textbf{Задачи:}
+    \begin{enumerate}
+        \item Описать типы данных для термов.
+        \item Описать свойства различных представлений($\alpha$-эквивалентность, операция подстановки etc.).
+        \item Показать, что различные представления эквивалентны между собой.
+        \item Для каждого представления доказать соответствующие свойства.
+    \end{enumerate}
+\end{frame}
+
+% плохой слайд
+\begin{frame}\frametitle{Существующие решения}
+    \begin{enumerate}
+        \item Задача формализации $\lambda$-исчисления довольно популярна.
+        \item Одно из решений -- A Formalization of Typed and Untyped λ-Calculi in SSReflect-Coq and Agda2. \footnote{https://github.com/pi8027/lambda-calculus}
+        \item В нем, как и в аналогичных описывается только одно представление.
+        \item Кроме того, нам не очень нравится Agda как язык реализации. В нем нет конструкций, которыми нам хотелось бы воспользоваться(фактор-типы).
+    \end{enumerate}
+\end{frame}
+
+% еще по слайду наверное надо добавить на каждое представление
+\begin{frame}[fragile=singleslide]\frametitle{Решение. Именованное представление}
+    Тип данных для термов:
+        \begin{figure}[H]
+            \center
+            \begin{minted}{haskell}
+            data Term =
+                Var Name 
+                | App Term Term 
+                | Lam Name Term
+            \end{minted}
+        \end{figure}
+    \begin{enumerate}
+        \item Нужно разрешимое равенство на $Name$.
+        \item $\alpha$-эквивалентность определяется индукцией по структуре терма плюс некоторый трюк в случае абстракции.
+        \item Подстановка определяется аналогично индукцией, но для абстракций снова необходим трюк!
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]\frametitle{Решение. Именованное представление(2)}
+    \begin{enumerate}
+        \item Все утверждения о подстановке рассматривают термы с точностью до $\alpha$-эквивалентности.
+        \item Свойства подстановки формулируются следующим образом:
+            \begin{align*}
+                &x[x \mapsto t] \alphaeq t\\
+                &t[x \mapsto x] \alphaeq t\\
+                &t[x \mapsto N][y \mapsto M] \alphaeq t[y \mapsto M][x \mapsto N[y \mapsto M]] (x \notin FV(M))
+            \end{align*}
+        \item Доказываются очень нудной индукцией по терму $t$.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]\frametitle{Решение. Неименованное представление}
+    Термы:
+    \begin{figure}[H]
+            \center
+            \begin{minted}{haskell}
+            data Term (n : Nat) =
+                Var (i : Fin n) 
+                | App (Term n) (Term n)
+                | Lam (Term (suc n))
+            \end{minted}
+        \end{figure}
+    \begin{enumerate}
+        \item Подстановка в таком представлении -- полная(во все переменные)
+        \item Так как нет имен переменных, то и определяется она намного проще.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]\frametitle{Решение. Монадическое представление}
+    Термы:
+    \begin{figure}[H]
+            \center
+            \begin{minted}{haskell}
+            data Term (V : Set) =
+                Var V 
+                | App (Term V) (Term V)
+                | Lam (Term (Maybe V))
+            \end{minted}
+        \end{figure}
+    \begin{enumerate}
+        \item Нетрудно заметить, что это функтор.
+        \item Чуть менее очевидно, но это монада!
+        \item Монадные законы в точности описывают свойства подстановки.
+        \item Для их доказательств удобно использовать функциональную экстенсиональность, которая в нашей теории конструируется, а не постулируется.
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}\frametitle{Результаты}
+    \begin{enumerate}
+        \item Написаны преобразования:
+            \begin{enumerate}
+                \item Из именованных термов в неименованные.
+                \item Из неименованных в монадические.
+                \item И обратно.
+            \end{enumerate}
+        \item Доказано, что преобразования -- биекции.
+        \item Для именованных термов описана $\alpha$-эквивалентность.
+        \item Для каждого представления определена операция подстановки.
+        \item Для каждого представления доказаны свойства термов:
+            \begin{enumerate}  
+                \item Преобразование именованного терма в неименованный уважает $\alpha$-эквивалентность.
+                \item Свойства операции подстановки.  
+            \end{enumerate}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{fin}
+    \begin{center} 
+        \Huge Спасибо за внимание! \\ Вопросы? 
+    \end{center} 
+    
+    \begin{block}{Github repo:}
+        \footnotesize{https://github.com/edgarzhavoronkov/vclang-lib/tree/lambda\_calculus/test/LC}
+    \end{block}
+\end{frame} 
+
+
+\end{document}
