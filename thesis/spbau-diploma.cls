@@ -313,7 +313,13 @@
 \usepackage{amssymb}
 \usepackage{faktor}
 \usepackage{bussproofs}
+\usepackage{tabularx}
+
+% минтед для подсветки кода
+\usepackage{minted}
 
 %% альфа и бета эквивалентности
 \newcommand{\alphaeq}{=_{\alpha}}
 \newcommand{\betaeq}{=_{\beta}}
+
+\newcommand{\lang}[1]{$#1$}
