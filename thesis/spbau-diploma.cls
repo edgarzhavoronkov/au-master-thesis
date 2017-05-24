@@ -315,11 +315,13 @@
 \usepackage{bussproofs}
 \usepackage{tabularx}
 
-% минтед для подсветки кода
+% минтед для подсветки кода и байда, чтобы окружение рендерилось по центру
 \usepackage{minted}
+\usepackage{xpatch,letltxmacro}
+\LetLtxMacro{\cminted}{\minted}
+\let\endcminted\endminted
+\xpretocmd{\cminted}{\RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}}{}{}
 
 %% альфа и бета эквивалентности
 \newcommand{\alphaeq}{=_{\alpha}}
 \newcommand{\betaeq}{=_{\beta}}
-
-\newcommand{\lang}[1]{$#1$}

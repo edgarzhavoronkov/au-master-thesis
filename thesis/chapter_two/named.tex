@@ -1,1 +1,61 @@
 \subsection{Именованное представление термов}
+\label{sec:named}
+
+Тип данных для термов в именованном представлении выглядит следующим образом:
+
+\begin{figure}[htp]
+\centering
+\begin{cminted}{haskell}
+data Term =
+  Var Name |
+  App Term Term |
+  Lam Name Term
+\end{cminted}
+\end{figure}
+
+Здесь \mintinline{haskell}{Name} -- это множество переменных $\mathcal{V}$ из формального определения множества $\lambda$-термов $\Lambda$ в разделе~\ref{sec:lambda}.
+
+Определим для такого представления операцию подстановки \mintinline{haskell}{subst}:
+
+\begin{figure}[H]
+\centering
+\begin{cminted}{haskell}
+
+subst :: Term -> Name -> Term -> Term
+subst (Var x) x s = s
+subst (Var y) x s = Var y
+subst (App t1 t2) x s = App (subst t1 x s) (subst t2 x s)
+subst (Lam x t) x s = Lam x t
+subst (Lam y t) x s = subst (Lam x' (subst t y x')) x s
+
+\end{cminted}
+\end{figure}
+
+В последнем определении подразумевается, что \mintinline{haskell}{x'} -- свежая переменная для терма \mintinline{haskell}{t}, которую мы подставляем, чтобы избежать захвата переменной.
+
+Аналогично определим отношение $\alpha$-эквивалентности:
+\begin{figure}[H]
+\centering
+\begin{cminted}{haskell}
+
+-- TODO
+data AlphaEq (t1 : Term) (t2 : Term)
+  | AlphaEq (Var x) (Var y) => x = y
+  | AlphaEq (App t1 s1) (App t2 s2) => AlphaEq t1 t2 && AlphaEq s1 s2
+  | AlphaEq (Lam x1 t1) (Lam x2 t2) => AlphaEq t2 (subst t1 x1 (Var x2))
+
+\end{cminted}
+\end{figure}
+
+Свойства подстановки выразятся тогда следующим образом:
+\begin{figure}[H]
+\centering
+\begin{minted}{haskell}
+
+subst-left-unit :: (t : Term) -> (x : Name) -> subst (Var x) x t = t
+subst-right-unit :: (t : Term) -> (x : Name) -> subst t x (Var x) = t
+subst-assoc :: (t M N : Term) -> (x y : Name) -> (Not (IsFree x M))
+  -> subst (subst t x N) y M = subst (subst t y M) x (subst N y M)
+
+\end{minted}
+\end{figure}
