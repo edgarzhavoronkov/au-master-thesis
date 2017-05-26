@@ -43,6 +43,37 @@
   w(\lambda T) = \lambda (w(T))
 \end{gather*}
 
+Сформулируем и докажем вспомогательную лемму, которая пригодится нам далее:
+\begin{lemma}
+  \label{index:weak_lemma}
+  Пусть $T \in \Lambda_{n}$, а $S_{n-1}, \dots, S_{0} \in \Lambda_{m}$. Тогда $subst(w(T), w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}) = w(subst(T, S_{n-1}, \dots S_{0}))$
+\end{lemma}
+
+\begin{proof}
+  Индукция по структуре терма $T$.
+  \begin{enumerate}
+    \item База индукции -- $v_{n, i}$. Левая часть равна, по определению подстановки:
+    $$ subst(v_{n+1, i+1}, w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}) = w(S_{i})$$
+    Правая часть:
+    $$w(subst(v_{n,i}, S_{n-1}, \dots, S_{0})) = w(S_{i})$$
+
+    \item Случай аппликации снова тривиален. Рассмотрим случай абстракции $\lambda T$. Левая часть вычислится в:
+    \begin{gather*}
+        subst(w(\lambda T), w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}) = \\
+        subst(\lambda w(T), w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}) = \\
+        \lambda subst(w(T), w(w(S_{n-1})), \dots, w(w(S_{0})), v_{m+2, 1}, v_{m+2,0}) \overset{\mathrm{IH}}{=} \\
+        \lambda w(subst(T, w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}))
+    \end{gather*}
+
+    Правая часть вычисляется в:
+    \begin{gather*}
+        w(subst(\lambda T, S_{n-1}, \dots, S_{0})) = \\
+        w(\lambda subst(T, w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0})) =
+        \lambda w(subst(T, w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}))
+    \end{gather*}
+  \end{enumerate}
+\end{proof}
+
 Аналогично именованному представлению, сформулируем лемму о подстановке:
 
 \begin{prop}
@@ -72,5 +103,5 @@
     \lambda(subst(T, w(subst(T_{n-1}, S_{m - 1}, \dots, S_{0})), \dots, w(subst(T_{0}, S_{m - 1}, \dots, S_{0})), v_{k+1, 0}))
   \end{gather*}
 
-  Нам нужно доказать вспомогательное утверждение, что для любых $T \in \Lambda_{n}$ и $S_{n-1}, \dots S_{0} \in \Lambda_{k}$ верно, что $subst(w(T), w(S_{n-1}), \dots, w(S_{0}), v_{k+1, 0}) = w(subst(T, S_{n-1}, \dots S_{0}))$. Однако оно тривиально доказывается точно такой же индукцией по терму $T$.
+  По лемме~\ref{index:weak_lemma} $subst(w(T_{i}), w(S_{m-1}), \dots, w(S_{0}), v_{k+1, 0}) = w(subst(T_{i}, S_{m - 1}, \dots, S_{0}))$ для всех $i=\overline{0, n-1}$, следовательно наше утверждение верно.
 \end{proof}
