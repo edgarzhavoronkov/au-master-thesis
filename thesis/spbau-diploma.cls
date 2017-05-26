@@ -328,3 +328,4 @@
 \newcommand{\betaeq}{=_{\beta}}
 
 \newtheorem{prop}{Утверждение}
+\newtheorem{lemma}{Лемма}

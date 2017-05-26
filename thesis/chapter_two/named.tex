@@ -84,18 +84,52 @@ $$ (\lambda z.x)[x \mapsto y] = \lambda z.y $$
     \item $T \equiv z \neq x,y$. Обе части редуцируются к $z$.
   \end{enumerate}
 
-  Случай аппликации тривиален, рассмотрим случай абстракции $\lambda z.T$. Пусть $z \neq x,y$ и $z \in FV(N)$. По соглашению Барендрегта, нам нужно переименовать $z$ в свежую переменную $z'$, такую что $z' \notin FV(N)$, $z' \notin FV(M)$ и $z \notin FV(N[y \mapsto M])$. Это эквивалентно тому, что мы можем осуществить подстановку $\lambda z'.t[z \mapsto z']$. Вычислим левую часть:
-  \begin{gather*}
-    (\lambda z'.t[z \mapsto z'])[x \mapsto N][y \mapsto M] = \\
-    \lambda z'.t[z \mapsto z'][x \mapsto N][y \mapsto M] \overset{\mathrm{IH}}{=} \\
-    \lambda z'.t[z \mapsto z'][y \mapsto M][x \mapsto N[y \mapsto M]]
-  \end{gather*}
+  Случай аппликации тривиален, рассмотрим случай абстракции $\lambda z.T$. Рассмотрим возможные случаи:
 
-  Правая часть:
-  \begin{gather*}
-    (\lambda z'.t[z \mapsto z'])[y \mapsto M][x \mapsto N[y \mapsto M]] = \\
-    \lambda z'.t[z \mapsto z'][y \mapsto M][x \mapsto N[y \mapsto M]]
-  \end{gather*}
+  \begin{enumerate}
+    \item $z \equiv x$. Левая часть -- $(\lambda x.T)[x \mapsto N][y \mapsto M] = (\lambda x.T)[y \mapsto M] \overset{\mathrm{x \notin FV(M)}}{=} \lambda x.T[y \mapsto M]$. Правая часть -- $(\lambda x.T)[y \mapsto M][x \mapsto N[y \mapsto M]] \overset{\mathrm{x \notin FV(M)}}{=} (\lambda x.T[y \mapsto M])[x \mapsto N[y \mapsto M]] = \lambda x.T[y \mapsto M]$.
 
-  Остальные случаи проверяются аналогично, мы не будем приводить их здесь в целях экономии места.
+    \item $z \equiv y$. Пусть $y \in FV(N)$ и $y \in FV(M)$. По соглашению Барендрегта, нам нужно переименовать $y$ в свежую переменную $y'$, такую что $y' \notin FV(N)$ и $y' \notin FV(M)$. Это эквивалентно тому, что мы можем осуществить подстановку $\lambda y'.t[y \mapsto y']$. Вычислим левую часть:
+    \begin{gather*}
+      (\lambda y'.T[y \mapsto y'])[x \mapsto N][y \mapsto M] = \\
+       \lambda y'.T[y \mapsto y'][x \mapsto N][y \mapsto M] \overset{\mathrm{IH}}{=} \\
+       \lambda y'.T[y \mapsto y'][y \mapsto M][x \mapsto N[y \mapsto M]]
+    \end{gather*}
+
+    Правая часть:
+    \begin{gather*}
+      (\lambda y'.T[y \mapsto y'])[y \mapsto M][x \mapsto N[y \mapsto M]] = \\
+      \lambda y'.T[y \mapsto y'][y \mapsto M][x \mapsto N[y \mapsto M]]
+    \end{gather*}
+
+    Заметим здесь, что так как $y' \notin FV(N)$ и $y' \notin FV(M)$, то, очевидно, что $y' \notin FV(N[y \mapsto M])$, поэтому в последнем переходе обе подстановки <<проваливаются>> в абстракцию.
+
+    \item $z \equiv y$. Пусть $y \in FV(N)$, но теперь уже $y \notin FV(M)$. Аналогично предыдущему пункту, мы переименовываем $y$ в свежую переменную $y'$, такую что $y' \notin FV(N)$ и $y' \notin FV(M)$, осуществляя подстановку $\lambda y'.t[y \mapsto y']$. Вычислим левую часть:
+    \begin{gather*}
+      (\lambda y'.T[y \mapsto y'])[x \mapsto N][y \mapsto M] = \\
+       \lambda y'.T[y \mapsto y'][x \mapsto N][y \mapsto M] \overset{\mathrm{IH}}{=} \\
+       \lambda y'.T[y \mapsto y'][y \mapsto M][x \mapsto N[y \mapsto M]]
+    \end{gather*}
+
+    А в этом случае, заметим, что так как мы сначала заменили \textbf{все} свободные вхождения $y$ в $T$ на $y'$, а потом на место $y$ подставили $M$, то вторая подстановка ничего не делает, поэтому левая часть окончательно равна $\lambda y'.T[y \mapsto y'][x \mapsto N[y \mapsto M]]$
+
+    Правая часть тогда редуцируется в:
+    \begin{gather*}
+      (\lambda y.T)[y \mapsto M][x \mapsto N[y \mapsto M]] = \\
+      (\lambda y.T)[x \mapsto N[y \mapsto M]] = \\
+      \lambda y.T[x \mapsto N[y \mapsto M]]
+    \end{gather*}
+
+    В последнем шаге вычисления, отметим, что так как $y \in FV(N)$ и $y \notin FV(M)$, то $y \notin FV(N[y \mapsto M])$, поэтому подстановка снова заносится под абстракцию. Переименуем и здесь $y$ в $y'$, тогда получим:
+    \begin{gather*}
+      \lambda y.T[x \mapsto N[y \mapsto M]] \alphaeq \\
+      \lambda y'.T[x \mapsto N[y \mapsto M]][y \mapsto y'] \overset{\mathrm{IH}}{=} \\
+      \lambda y'.T[y \mapsto y'][x \mapsto N[y \mapsto M][y \mapsto y']]
+    \end{gather*}
+
+    Из тех же соображений, что и выше, подстановка $N[y \mapsto M][y \mapsto y']$ -- это то же самое, что и $N[y \mapsto M]$, поэтому правая часть окончательно вычисляется в $\lambda y'.T[y \mapsto y'][x \mapsto N[y \mapsto M]]$. 
+
+    \item $z \neq x,y$. Доказательство аналогично предыдущим двум пунктам.
+
+  \end{enumerate}
 \end{proof}
