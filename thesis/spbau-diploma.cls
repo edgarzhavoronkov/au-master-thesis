@@ -311,6 +311,7 @@
 %%  Всякие пакеты для математики
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{faktor}
 \usepackage{bussproofs}
 \usepackage{tabularx}
@@ -325,3 +326,5 @@
 %% альфа и бета эквивалентности
 \newcommand{\alphaeq}{=_{\alpha}}
 \newcommand{\betaeq}{=_{\beta}}
+
+\newtheorem{prop}{Утверждение}

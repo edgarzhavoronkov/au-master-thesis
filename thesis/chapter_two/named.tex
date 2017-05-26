@@ -1,61 +1,101 @@
 \subsection{Именованное представление термов}
 \label{sec:named}
 
-Тип данных для термов в именованном представлении выглядит следующим образом:
+Термы $\lambda$-исчисления($\lambda$-термы) в именованном представлении конструируются из переменных путем применения друг к другу или создания анонимных функций.
 
-\begin{figure}[htp]
-\centering
-\begin{cminted}{haskell}
-data Term =
-  Var Name |
-  App Term Term |
-  Lam Name Term
-\end{cminted}
-\end{figure}
+Формально, пусть $\mathcal{V}=\{x,y,z,\dots\}$ -- счетное множество переменных. Договоримся обозначать переменные прописными буквами, а произвольные термы -- заглавными. Тогда множество $\lambda$-термов $\Lambda$ определяется индуктивно, согласно следующим правилам:
+\begin{align*}
+  v \in \mathcal{V} &\Rightarrow v \in \Lambda \\
+  M, N \in \Lambda &\Rightarrow M N \in \Lambda \\
+  v \in \mathcal{V}, M \in \Lambda &\Rightarrow \lambda v.M \in \Lambda
+\end{align*}
 
-Здесь \mintinline{haskell}{Name} -- это множество переменных $\mathcal{V}$ из формального определения множества $\lambda$-термов $\Lambda$ в разделе~\ref{sec:lambda}.
+Нотация аппликации $M N$ обозначает применение функции $M$ ко входу $N$. Заметим, что так как здесь не вводится никаких правил типизации, то ничто не мешает нам применить терм к самому себе(i.e $F F$). Нотация абстракции $\lambda x.M$, в свою очередь, обозначает создание анонимной функции от переменной $x$, которая сопоставляет конкретному значению $x$ выражение $M[x]$. Здесь заметим, что терм $M$ вовсе не обязан содержать в себе переменную $x$, в таком случае мы считаем абстракцию $\lambda x.M$ константной функцией.
 
-Определим для такого представления операцию подстановки \mintinline{haskell}{subst}:
+Некоторые примеры термов:
+\begin{gather*}
+   \lambda x.x \\
+   \lambda x y.x \\
+   (\lambda x.f (x x)) (\lambda x.f (x x))
+\end{gather*}
 
-\begin{figure}[H]
-\centering
-\begin{cminted}{haskell}
+Переменная $x$ после абстракции $\lambda x.M$ называется \textit{связанной}. Соответственно, до абстракции она была \textit{свободной}. Формально, множества $FV(T)$ свободных и $BV(T)$ связанных переменных терма $T$ определяются индуктивно следующим образом:
+\begin{align*}
+  FV(x) &= \{x\} \\
+  FV(M N) &= FV(M) \cup FV(N) \\
+  FV(\lambda x. M) &= FV(M) \setminus \{x\} \\
+  \\
+  BV(x) &= \emptyset \\
+  BV(M N) &= BV(M) \cup BV(N) \\
+  BV(\lambda x. M) &= \{x\} \cup BV(M)
+\end{align*}
 
-subst :: Term -> Name -> Term -> Term
-subst (Var x) x s = s
-subst (Var y) x s = Var y
-subst (App t1 t2) x s = App (subst t1 x s) (subst t2 x s)
-subst (Lam x t) x s = Lam x t
-subst (Lam y t) x s = subst (Lam x' (subst t y x')) x s
+Применение абстракции к некоторому аргументу $(\lambda x.M) N$ -- это \textit{подстановка} $M[x \mapsto N]$ терма $N$ вместо \textit{свободных} вхождений переменной $x$ в терме $M$. Формально, правила подстановки:
+\begin{align*}
+  x[x \mapsto N] &= N \\
+  y[x \mapsto N] &= y, (x \neq y) \\
+  (T S)[x \mapsto N] &= T[x \mapsto N] S[x \mapsto N] \\
+  (\lambda x.T)[x \mapsto N] &= \lambda x.T \\
+  (\lambda y.T)[x \mapsto N] &= \lambda y.T[x \mapsto N], (y \notin FV(N), x \neq y)
+\end{align*}
 
-\end{cminted}
-\end{figure}
+Рассмотрим, что произойдет, если в последнем правиле условие $ y \notin FV(N)$ не выполняется:
+$$ (\lambda y.x)[x \mapsto y] = \lambda y.y $$
 
-В последнем определении подразумевается, что \mintinline{haskell}{x'} -- свежая переменная для терма \mintinline{haskell}{t}, которую мы подставляем, чтобы избежать захвата переменной.
+Получилось, что в результате подстановки мы превратили константную функцию $\lambda y.x$ в тождественную. Такая ситуация называется проблемой захвата переменной, когда при подстановке в $\lambda$-абстракцию переменные подставляемого терма захватываются абстракцией.
 
-Аналогично определим отношение $\alpha$-эквивалентности:
-\begin{figure}[H]
-\centering
-\begin{cminted}{haskell}
+Эту проблему можно решить если принять так называемое соглашение Барендрегта о том, что имена связанных переменных всегда выбирать так, чтобы они отличались от имен свободных. В примере выше, например, мы можем переименовать связанную переменную $y$ в свежую $z$ и поведении абстракции $\lambda z.x$ не изменится. Тогда подстановку можно использовать без каких-либо оговорок о свободных и связанных переменных. Пример выше превратится в:
+$$ (\lambda z.x)[x \mapsto y] = \lambda z.y $$
 
--- TODO
-data AlphaEq (t1 : Term) (t2 : Term)
-  | AlphaEq (Var x) (Var y) => x = y
-  | AlphaEq (App t1 s1) (App t2 s2) => AlphaEq t1 t2 && AlphaEq s1 s2
-  | AlphaEq (Lam x1 t1) (Lam x2 t2) => AlphaEq t2 (subst t1 x1 (Var x2))
+Как мы уже установили выше, мы можем переименовывать связанные переменные в абстракциях и их поведение при применении к аргументам не изменится. Более того, имена связанных переменных не играют для нас никакой роли. Поэтому, как правило, $\lambda$-термы и рассматривают с точностью до имен параметров абстракций. Формально, на множестве именованных термов $\Lambda$ можно задать отношение $\alphaeq \in \Lambda \times \Lambda$, которое называется $\alpha$-эквивалентностью и определяется как минимальное отношение конгруэнтности, порожденное следующими правилами:
 
-\end{cminted}
-\end{figure}
+\begin{center}
+  \AxiomC{$x \in \mathcal{V}$}
+  \UnaryInfC{$x \alphaeq x$}
+  \DisplayProof{}
+\end{center}
 
-Свойства подстановки выразятся тогда следующим образом:
-\begin{figure}[H]
-\centering
-\begin{minted}{haskell}
+\begin{center}
+  \AxiomC{$M \alphaeq M'$}
+  \AxiomC{$N \alphaeq N'$}
+  \BinaryInfC{$M N \alphaeq M' N'$}
+  \DisplayProof{}
+\end{center}
 
-subst-left-unit :: (t : Term) -> (x : Name) -> subst (Var x) x t = t
-subst-right-unit :: (t : Term) -> (x : Name) -> subst t x (Var x) = t
-subst-assoc :: (t M N : Term) -> (x y : Name) -> (Not (IsFree x M))
-  -> subst (subst t x N) y M = subst (subst t y M) x (subst N y M)
+\begin{center}
+  \AxiomC{$M[x \mapsto y] \alphaeq M'$}
+  \AxiomC{$y \notin FV(M)$}
+  \BinaryInfC{$\lambda x. M \alphaeq \lambda y.M'$}
+  \DisplayProof{}
+\end{center}
 
-\end{minted}
-\end{figure}
+Наконец, сформулируем лемму о подстановке:
+
+\begin{prop}
+  \label{named:assoc}
+  Для любых $T, M, N \in \Lambda; x, y \in \mathcal{V}$, если $x \neq y$ и $x \notin FV(M)$, то верно $T[x \mapsto N][y \mapsto M] = T[y \mapsto M][x \mapsto N[y \mapsto M]]$
+\end{prop}
+
+\begin{proof}
+  Индукция по терму $T$. База индукции -- случай, когда $T$ является переменной. Рассмотрим три случая:
+  \begin{enumerate}
+    \item $T \equiv x$. Левая часть -- $x[x \mapsto N][y \mapsto M] = N[y \mapsto M]$. Правая часть -- $x[y\mapsto M][x \mapsto N[y \mapsto M]] = N[y \mapsto M]$.
+    \item $T \equiv y$. Левая часть -- $y[x \mapsto N][y \mapsto M] = M$. Правая часть -- $y[y\mapsto M][x \mapsto N[y \mapsto M]] = M[x\mapsto N[y \mapsto M]]$. Так как $x \notin FV(M)$, то $M[x\mapsto N[y \mapsto M]] = M$
+    \item $T \equiv z \neq x,y$. Обе части редуцируются к $z$.
+  \end{enumerate}
+
+  Случай аппликации тривиален, рассмотрим случай абстракции $\lambda z.T$. Пусть $z \neq x,y$ и $z \in FV(N)$. По соглашению Барендрегта, нам нужно переименовать $z$ в свежую переменную $z'$, такую что $z' \notin FV(N)$, $z' \notin FV(M)$ и $z \notin FV(N[y \mapsto M])$. Это эквивалентно тому, что мы можем осуществить подстановку $\lambda z'.t[z \mapsto z']$. Вычислим левую часть:
+  \begin{gather*}
+    (\lambda z'.t[z \mapsto z'])[x \mapsto N][y \mapsto M] = \\
+    \lambda z'.t[z \mapsto z'][x \mapsto N][y \mapsto M] \overset{\mathrm{IH}}{=} \\
+    \lambda z'.t[z \mapsto z'][y \mapsto M][x \mapsto N[y \mapsto M]]
+  \end{gather*}
+
+  Правая часть:
+  \begin{gather*}
+    (\lambda z'.t[z \mapsto z'])[y \mapsto M][x \mapsto N[y \mapsto M]] = \\
+    \lambda z'.t[z \mapsto z'][y \mapsto M][x \mapsto N[y \mapsto M]]
+  \end{gather*}
+
+  Остальные случаи проверяются аналогично, мы не будем приводить их здесь в целях экономии места.
+\end{proof}
