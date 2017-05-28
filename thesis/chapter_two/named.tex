@@ -4,11 +4,25 @@
 Термы $\lambda$-исчисления($\lambda$-термы) в именованном представлении конструируются из переменных путем применения друг к другу или создания анонимных функций.
 
 Формально, пусть $\mathcal{V}=\{x,y,z,\dots\}$ -- счетное множество переменных. Договоримся обозначать переменные прописными буквами, а произвольные термы -- заглавными. Тогда множество $\lambda$-термов $\Lambda$ определяется индуктивно, согласно следующим правилам:
-\begin{align*}
-  v \in \mathcal{V} &\Rightarrow v \in \Lambda \\
-  M, N \in \Lambda &\Rightarrow M N \in \Lambda \\
-  v \in \mathcal{V}, M \in \Lambda &\Rightarrow \lambda v.M \in \Lambda
-\end{align*}
+\begin{center}
+  \AxiomC{$v \in \mathcal{V}$}
+  \UnaryInfC{$v \in \Lambda$}
+  \DisplayProof{}
+\end{center}
+
+\begin{center}
+  \AxiomC{$M \in \Lambda$}
+  \AxiomC{$N \in \Lambda$}
+  \BinaryInfC{$M N \in \Lambda$}
+  \DisplayProof{}
+\end{center}
+
+\begin{center}
+  \AxiomC{$M \in \Lambda$}
+  \AxiomC{$v \in \mathcal{V}$}
+  \BinaryInfC{$\lambda v.M \in \Lambda$}
+  \DisplayProof{}
+\end{center}
 
 Нотация аппликации $M N$ обозначает применение функции $M$ ко входу $N$. Заметим, что так как здесь не вводится никаких правил типизации, то ничто не мешает нам применить терм к самому себе(i.e $F F$). Нотация абстракции $\lambda x.M$, в свою очередь, обозначает создание анонимной функции от переменной $x$, которая сопоставляет конкретному значению $x$ выражение $M[x]$. Здесь заметим, что терм $M$ вовсе не обязан содержать в себе переменную $x$, в таком случае мы считаем абстракцию $\lambda x.M$ константной функцией.
 
@@ -127,9 +141,9 @@ $$ (\lambda z.x)[x \mapsto y] = \lambda z.y $$
       \lambda y'.T[y \mapsto y'][x \mapsto N[y \mapsto M][y \mapsto y']]
     \end{gather*}
 
-    Из тех же соображений, что и выше, подстановка $N[y \mapsto M][y \mapsto y']$ -- это то же самое, что и $N[y \mapsto M]$, поэтому правая часть окончательно вычисляется в $\lambda y'.T[y \mapsto y'][x \mapsto N[y \mapsto M]]$. 
+    Из тех же соображений, что и выше, подстановка $N[y \mapsto M][y \mapsto y']$ -- это то же самое, что и $N[y \mapsto M]$, поэтому правая часть окончательно вычисляется в $\lambda y'.T[y \mapsto y'][x \mapsto N[y \mapsto M]]$.
 
-    \item $z \neq x,y$. Доказательство аналогично предыдущим двум пунктам.
+    \item $z \neq x,y$. Доказательство аналогично предыдущим двум пунктам. \qedhere
 
   \end{enumerate}
 \end{proof}
