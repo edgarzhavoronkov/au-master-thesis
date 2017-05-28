@@ -308,13 +308,17 @@
 \let\savenumberline\numberline
 \def\numberline#1{\savenumberline{#1.}}
 
-%%  Всякие пакеты для математики
+% графика
+\usepackage{graphicx}
+
+%  Всякие пакеты для математики
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{faktor}
 \usepackage{bussproofs}
 \usepackage{tabularx}
+\usepackage[all]{xy}
 
 % минтед для подсветки кода и байда, чтобы окружение рендерилось по центру
 \usepackage{minted}
@@ -323,9 +327,15 @@
 \let\endcminted\endminted
 \xpretocmd{\cminted}{\RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}}{}{}
 
-%% альфа и бета эквивалентности
+% альфа и бета эквивалентности
 \newcommand{\alphaeq}{=_{\alpha}}
 \newcommand{\betaeq}{=_{\beta}}
 
+% стили для теорем, определений и утверждений
+\renewcommand\qedsymbol{$\blacksquare$}
+\theoremstyle{plain}
 \newtheorem{prop}{Утверждение}
+\theoremstyle{plain}
 \newtheorem{lemma}{Лемма}
+\theoremstyle{definition}
+\newtheorem{definition}{Определение}
