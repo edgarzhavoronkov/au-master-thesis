@@ -338,4 +338,4 @@
 \theoremstyle{plain}
 \newtheorem{lemma}{Лемма}
 \theoremstyle{definition}
-\newtheorem{definition}{Определение}
+\newtheorem*{definition}{Определение}

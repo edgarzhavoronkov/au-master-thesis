@@ -113,7 +113,7 @@
     \item Cлучай аппликации напрямую следует из предположения индукции.
     \item Пусть теперь $T = \lambda M$. Имеем, что $\texttt{bind}(\lambda M, \texttt{return}) = \lambda (\texttt{bind}(M, k'(\texttt{return})))$. Вспомогательное отображение $k'(return)$ устроено следующим образом:
     \begin{enumerate}
-      \item $k'(\texttt{return})(inl(v)) = F_{inl}(v) = inl(v)$
+      \item $k'(\texttt{return})(inl(v)) = F_{inl}(\texttt{return}(v)) = \texttt{return}(inl(v))$
       \item $k'(\texttt{return})(inr(*)) = \texttt{return}(inr(*))$
     \end{enumerate}
   \end{enumerate}
@@ -129,8 +129,51 @@
   Утверждение тривиально следует из определения \texttt{bind} и того факта, что \texttt{return} -- это переменная.
 \end{proof}
 
+Прежде, чем формулировать последний монадный закон, сформулируем и докажем несколько технических лемм, которые помогут нам в его доказательстве.
+
+\begin{lemma}
+  \label{monad:bind-fmap-comm-rhs}
+  Для любых $T \in \Lambda_{V}$, $f : V \to W$ и $k : W \to \Lambda_{U}$ верно $\texttt{bind}(F_{f}(T), k) = \texttt{bind}(T, k \circ f)$.
+\end{lemma}
+
+\begin{proof}
+  Индукция по структуре терма $T$ с тривиальными случаями переменной и аппликации. Рассмотрим случай абстракции $\lambda M$. Нам нужно показать, что $\lambda \texttt{bind}(F_{f'(f)}(M), k'(k)) = \lambda \texttt{bind}(M, k'(k \circ f))$. По индукционной гипотезе мы знаем, что $\texttt{bind}(F_{f'(f)}(M), k'(k)) = \texttt{bind}(M, k'(k) \circ f'(f))$, Заметим теперь, что $k'(k \circ f)$ и $k'(k) \circ f'(f)$ ведут себя одинаково на всех входах, следовательно это утверждение доказано.
+\end{proof}
+
+\begin{lemma}
+  \label{monad:bind-fmap-comm-lhs}
+  Для любых $T \in \Lambda_{V}$, $f : W \to U$ и $k : V \to \Lambda_{W}$ верно $ F_{f}(\texttt{bind}(T, k)) = \texttt{bind}(T, (x \mapsto F_{f}(k(x))))$.
+\end{lemma}
+
+\begin{proof}
+  Снова индукция по структуре терма $T$. Случай переменной и аппликации снова тривиален, поэтому рассмотрим случай абстракции $\lambda M$.
+
+  Нам нужно показать, что $\lambda F_{f'(f)}(\texttt{bind}(M, k'(k))) = \lambda \texttt{bind}(M, k'(x \mapsto F_{f}(k(x))))$. По индукционной гипотезе мы знаем, что $F_{f'(f)}(\texttt{bind}(M, k'(k))) = \texttt{bind}(M, (x \mapsto F_{f'(f)}(k'(k)(x))))$. Покажем теперь, что стрелки Клейсли $ k'(x \mapsto F_{f}(k(x))) $ и $ x \mapsto F_{f'(f)}(k'(k)(x)) $ ведут себя одинаково на всех входах:
+
+  \begin{enumerate}
+    \item $inr(*)$. Обе стрелки вычисляются в $\texttt{return}(inr(*))$
+    \item $inl(v)$. Надо показать, что $F_{f'(inl)}(F_{f}(k(v))) = F_{f'(f)}(F_{inl}(k(v)))$. Так как $\Lambda_{-}$ -- функтор и он уважает композицию отображений имеем, что нужно показать $F_{f'(inl) \circ f}(k(v)) = F_{f'(f) \circ inl}(k(v))$. Для этого в свою очередь нужно снова показать, что два отображения $f'(inl) \circ f$ и $f'(f) \circ inl$ ведут себя одинаково на всех входах, но это очень легко понять, просто взглянув на определение $f'$.
+  \end{enumerate}
+\end{proof}
+
+\begin{lemma}
+  \label{monad:bind-fmap-comm}
+  Для любого $T \in \Lambda_{V}$ и $f : V \to \Lambda_{W}$ верно $F_{inl}(\texttt{bind}(T, f)) = \texttt{bind}(F_{inl}(t), k'(g))$.
+\end{lemma}
+
+\begin{proof}
+  Снова индукция по структуре терма $T$, случай переменной и аппликации тривиален, рассмотрим случай абстракции $\lambda M$.
+
+  Левая часть вычислится в:
+  $$ \lambda F_{f'(inl)}(\texttt{bind}(M, k'(f))) $$
+  Правая в:
+  $$ \lambda \texttt{bind}(F_{f'(inl)}(M), k'(k'(f))) $$
+
+  По лемме~\ref{monad:bind-fmap-comm-rhs} имеем, что $\texttt{bind}(F_{f'(inl)}(M), k'(k'(f))) = \texttt{bind}(M, k'(k'(f)) \circ f'(inl))$. По лемме~\ref{monad:bind-fmap-comm-lhs} имеем $F_{f'(inl)}(\texttt{bind}(M, k'(f))) = \texttt{bind}(M, (x \mapsto F_{f'(inl)}(k'(f)(x))))$. Заметим теперь, что стрелки Клейсли $k'(k'(f)) \circ f'(inl)$ и $x \mapsto F_{f'(inl)}(k'(f)(x))$ ведут себя одинаково на всех входах, тогда по симметричности и транзитивности равенства получаем доказательство требуемого утверждения.
+\end{proof}
+
 \begin{prop}
-  Для любого $T \in \Lambda_{V}$, $f : V \to \Lambda_{W}, g : W \to \Lambda_{U}$ верно $\texttt{bind}(\texttt{bind}(T, f), g) = \texttt{bind}(T, f')$, где $f'(x) = \texttt{bind}(f(x), g)$
+  Для любого $T \in \Lambda_{V}$, $f : V \to \Lambda_{W}, g : W \to \Lambda_{U}$ верно $\texttt{bind}(\texttt{bind}(T, f), g) = \texttt{bind}(T, (x \mapsto \texttt{bind}(f(x), g)) )$.
 \end{prop}
 
 \begin{proof}
@@ -138,7 +181,32 @@
   \begin{enumerate}
     \item Рассмотрим случай, когда $T = v$. Тогда левая часть вычисляется в $\texttt{bind}(f(v), g)$, ровно как и правая.
     \item Случай для аппликации следует напрямую из индукционной гипотезы.
-    \item Рассмотрим случай абстракции $\lambda M$
+    \item Рассмотрим случай абстракции $\lambda M$. Посмотрим, во что вычисляется левая часть:
+    \begin{gather*}
+      \texttt{bind}(\texttt{bind}(\lambda M, f), g) = \texttt{bind}(\lambda \texttt{bind}(M, k'(f)), g) = \\
+      \lambda \texttt{bind}(\texttt{bind}(M, k'(f)), k'(g)) \\
+      \text{где} \\
+      k'(g)(inl(w)) = F_{inl}(g(w)) \\
+      k'(g)(inr(*)) = \texttt{return}(inr(*)) \\
+      \text{и} \\
+      k'(f)(inl(v)) = F_{inl}(f(v)) \\
+      k'(f)(inr(*)) = \texttt{return}(inr(*))
+    \end{gather*}
+
+    Правая часть, в свою очередь, вычисляется в:
+    \begin{gather*}
+      \texttt{bind}(\lambda M, (x \mapsto \texttt{bind}(f(x), g))) = \lambda \texttt{bind}(M, k'(x \mapsto \texttt{bind}(f(x), g)))
+    \end{gather*}
+
+    Чтобы воспользоваться индукционной гипотезой, необходимо показать, что $k'(x \mapsto \texttt{bind}(f(x), g)) : V \coprod \{*\} \to \Lambda_{U \coprod \{*\}}$ ведет себя так же как и $x \mapsto \texttt{bind}(k'(f)(x), k'(g))$. Для этого мы просто покажем, что они возвращают одинаковый результат на всех входах.
+
+    Рассмотрим два случая, как могут выглядеть входные данные:
+    \begin{enumerate}
+      \item $inr(*)$. Обе части вычисляются в $\texttt{return}(inr(*))$.
+      \item $inl(v)$. Левая часть вычисляется в: $$ F_{inl}(\texttt{bind}(f(v), g)) $$
+      Правая: $$\texttt{bind}(F_{inl}(f(v)), f'(g))$$
+      Воспользовавшись леммой~\ref{monad:bind-fmap-comm} для терма $f(v)$ и $g$ получаем доказательство исходного утверждения. \qedhere
+    \end{enumerate}
   \end{enumerate}
 \end{proof}
 
