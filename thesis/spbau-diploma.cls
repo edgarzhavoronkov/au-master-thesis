@@ -339,3 +339,6 @@
 \newtheorem{lemma}{Лемма}
 \theoremstyle{definition}
 \newtheorem*{definition}{Определение}
+
+% приложения
+\usepackage[titletoc]{appendix}
