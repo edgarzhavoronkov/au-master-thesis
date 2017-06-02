@@ -320,12 +320,10 @@
 \usepackage{tabularx}
 \usepackage[all]{xy}
 
-% минтед для подсветки кода и байда, чтобы окружение рендерилось по центру
+% минтед для подсветки кода
 \usepackage{minted}
-\usepackage{xpatch,letltxmacro}
-\LetLtxMacro{\cminted}{\minted}
-\let\endcminted\endminted
-\xpretocmd{\cminted}{\RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}}{}{}
+\renewcommand{\listingscaption}{Листинг}
+
 
 % альфа и бета эквивалентности
 \newcommand{\alphaeq}{=_{\alpha}}
