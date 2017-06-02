@@ -74,6 +74,7 @@ map-inl-respects-comp
         | inr r => idp
 
 
+-- Утверждение 4 из раздела 2.3
 \function
 fmap-respects-id
     {V : \Set}
@@ -87,6 +88,7 @@ fmap-respects-id
                     \in pmap FLam rect
 
 
+-- Утверждение 5 из раздела 2.3
 \function
 fmap-respects-comp
     {A B C : \Set}
@@ -135,9 +137,9 @@ bind-fmap-comm-rhs-fext-helper-lemma-fext-helper
 bind-fmap-comm-rhs-fext-helper-lemma
     {B C : \Set}
     (t : FTerm B)
-    (f : B -> C) : fmap (map-inl {B} {C} {Unit} f) (fmap {B} {Either B Unit} inl t) = fmap {C} {Either C Unit} inl (fmap f t) <= \elim t 
-        | FVar b        => idp 
-        | FApp t1 t2    => pmap2 FApp (bind-fmap-comm-rhs-fext-helper-lemma t1 f) (bind-fmap-comm-rhs-fext-helper-lemma t2 f) 
+    (f : B -> C) : fmap (map-inl {B} {C} {Unit} f) (fmap {B} {Either B Unit} inl t) = fmap {C} {Either C Unit} inl (fmap f t) <= \elim t
+        | FVar b        => idp
+        | FApp t1 t2    => pmap2 FApp (bind-fmap-comm-rhs-fext-helper-lemma t1 f) (bind-fmap-comm-rhs-fext-helper-lemma t2 f)
         | FLam t        =>  \let
                                 | rec   => bind-fmap-comm-rhs-fext-helper-lemma t (map-inl f)
                                 | comp1 => fmap-respects-comp (map-inl {_} {_} {Unit} inl) (map-inl {_} {_} {Unit} (map-inl {B} {C} {Unit} f)) t
@@ -157,6 +159,7 @@ bind-fmap-comm-rhs-fext-helper
         | inr unit => idp
 
 
+-- Лемма 3 из раздела 2.3
 \function
 bind-fmap-comm-rhs
     {A B C : \Set}
@@ -168,7 +171,7 @@ bind-fmap-comm-rhs
         | FLam t        =>  \let
                                 | rec => bind-fmap-comm-rhs t (map-inl {B} {C} {Unit} f) (bind-fun-helper k)
                                 | fext => funExt (\lam _ => FTerm (Either C Unit)) (\lam x => fmap (map-inl {B} {C} {Unit} f) (bind-fun-helper k x)) (\lam e => bind-fun-helper (\lam x => fmap f (k x)) e) (bind-fmap-comm-rhs-fext-helper f k)
-                                | trrec => transport (\lam u => fmap (map-inl {B} {C} {Unit} f) (bind t (bind-fun-helper k)) = u) (pmap (bind t) fext) rec 
+                                | trrec => transport (\lam u => fmap (map-inl {B} {C} {Unit} f) (bind t (bind-fun-helper k)) = u) (pmap (bind t) fext) rec
                             \in pmap FLam trrec
 
 
@@ -176,12 +179,13 @@ bind-fmap-comm-rhs
 bind-fmap-comm-lhs-fext-helper
     {A B C : \Set}
     (f : A -> B)
-    (k : B -> FTerm C) 
+    (k : B -> FTerm C)
     (x : Either A Unit) : bind-fun-helper k (map-inl {A} {B} {Unit} f x) = bind-fun-helper (\lam y => k (f y)) x <= \elim x
         | inl a => idp
         | inr unit => idp
 
-        
+
+-- Лемма 2 из раздела 2.3
 \function
 bind-fmap-comm-lhs
     {A B C : \Set}
@@ -195,8 +199,8 @@ bind-fmap-comm-lhs
                                 | fext => funExt (\lam _ => FTerm (Either C Unit)) (\lam x => bind-fun-helper k (map-inl {A} {B} {Unit} f x)) (\lam e => bind-fun-helper (\lam x => k (f x)) e) (bind-fmap-comm-lhs-fext-helper f k)
                                 | trrec => transport (\lam u => (fmap (map-inl {A} {B} {Unit} f) t) `bind` (bind-fun-helper k) = u) (pmap (bind t) fext) rec
                             \in pmap FLam trrec
- 
 
+-- Лемма 4 из раздела 2.3
 \function
 bind-fmap-comm
     {A B : \Set}
@@ -223,7 +227,7 @@ bind-assoc-funext-helper
 
 
 -- Monad laws
-
+-- Утверждение 6 из раздела 2.3
 \function
 return-right-unit
     {V : \Set}
@@ -237,6 +241,7 @@ return-right-unit
                             \in pmap FLam trrec
 
 
+-- Утверждение 7 из раздела 2.3
 \function
 return-left-unit
     {V W : \Set}
@@ -244,6 +249,7 @@ return-left-unit
     (k : V -> FTerm W) : ((return x) `bind` k = k x) => idp
 
 
+-- Утверждение 8 из раздела 2.3
 \function
 bind-assoc
     {A B C : \Set}

@@ -30,7 +30,6 @@
 Определим операцию подстановки для таких термов. Мы определим ее в более общем случае -- вместо какой-то одной переменной мы будем осуществлять подстановку во \textbf{все} переменные терма. Пусть $T \in \Lambda_{n}$, и $S_{0}, \dots S_{n-1} \in \Lambda_{k}$. Тогда $subst(T, S_{n - 1}, \dots, S_{0}) \in \Lambda_{k}$ определяется следующим образом:
 \begin{gather*}
   subst(v_{n, i}, S_{n - 1}, \dots, S_{0}) = S_{i} \\
-  subst(T, v_{n, n-1}, \dots, v_{n, 0}) = T \\
   subst(T_{1} T_{2}, S_{n - 1}, \dots, S_{0}) = \\
   subst(T_{1}, S_{n - 1}, \dots, S_{0})\ subst(T_{2}, S_{n - 1}, \dots, S_{0}) \\
   subst(\lambda T, S_{n - 1}, \dots, S_{0}) = \lambda (subst(T, w(S_{n - 1}), \dots, w(S_{0}), v_{n+1, 0})
@@ -72,6 +71,23 @@
         \lambda w(subst(T, w(S_{n-1}), \dots, w(S_{0}), v_{m+1, 0}))
     \end{gather*}
   \end{enumerate}
+\end{proof}
+
+Сформулируем и докажем наличие правой единицы у $subst$:
+\begin{prop}
+  Для любого $T \in \Lambda_{n}$ верно, что $subst(T, v_{n, n-1}, \dots, v_{n,0}) = T$
+\end{prop}
+
+\begin{proof}
+  Индукция по структуре терма $T$:
+
+  База индукции для случая $T = v_{n,i}$ тривиальна, как и случай аппликации. Рассмотрим случай абстракции $\lambda T$.
+  \begin{gather*}
+      subst(\lambda T, v_{n, n-1}, \dots, v_{n, 0}) = \\
+      \lambda subst(T, w(v_{n, n-1}), \dots, w(v_{n,0}), v_{n+1, 0}) = \\
+      \lambda subst(T, v_{n+1, n}, \dots, v_{n + 1,1}, v_{n+1, 0}) \overset{\mathrm{IH}}{=} \\
+      \lambda T
+  \end{gather*}
 \end{proof}
 
 Аналогично именованному представлению, сформулируем лемму о подстановке:
