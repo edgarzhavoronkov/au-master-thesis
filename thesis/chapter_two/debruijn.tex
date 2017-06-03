@@ -30,9 +30,8 @@
 Определим операцию подстановки для таких термов. Мы определим ее в более общем случае -- вместо какой-то одной переменной мы будем осуществлять подстановку во \textbf{все} переменные терма. Пусть $T \in \Lambda_{n}$, и $S_{0}, \dots S_{n-1} \in \Lambda_{k}$. Тогда $subst(T, S_{n - 1}, \dots, S_{0}) \in \Lambda_{k}$ определяется следующим образом:
 \begin{gather*}
   subst(v_{n, i}, S_{n - 1}, \dots, S_{0}) = S_{i} \\
-  subst(T_{1} T_{2}, S_{n - 1}, \dots, S_{0}) = \\
-  subst(T_{1}, S_{n - 1}, \dots, S_{0})\ subst(T_{2}, S_{n - 1}, \dots, S_{0}) \\
-  subst(\lambda T, S_{n - 1}, \dots, S_{0}) = \lambda (subst(T, w(S_{n - 1}), \dots, w(S_{0}), v_{n+1, 0})
+  subst(T_{1} T_{2}, S_{n - 1}, \dots, S_{0}) =  subst(T_{1}, S_{n - 1}, \dots, S_{0})\ subst(T_{2}, S_{n - 1}, \dots, S_{0}) \\
+  subst(\lambda T, S_{n - 1}, \dots, S_{0}) = \lambda subst(T, w(S_{n - 1}), \dots, w(S_{0}), v_{n+1, 0})
 \end{gather*}
 
 Операция $w(T)$ работает следующим образом. Пусть терм $T \in \Lambda_{n}$, тогда терм $w(T) \in \Lambda_{n+1}$ и определен как:
