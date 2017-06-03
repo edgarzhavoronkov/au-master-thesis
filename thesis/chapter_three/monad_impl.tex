@@ -3,7 +3,7 @@
 Термы в монадическом представлении кодируются следующим типом данных:
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     -- F is for functor.
     \data FTerm (V : \Set)
         | FVar V
@@ -18,7 +18,7 @@
 Для реализации монадического связывания можно заметить, что сигнатуру \texttt{bind} можно обобщить. Для краткости будем обозначать тип \mintinline{text}{Either V Unit} как $V + 1$. Если мы определим вспомогательную фукнцию $\texttt{bind'} : FTerm (V + n) \to (V \to FTerm\ W) \to FTerm (W + n) $, то \texttt{bind}, очевидно, будет определен, как её результат при $n = 0$. Её можно было бы определить примерно следующим образом:
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     \function
     bind'
         {V W : \Type}
@@ -42,7 +42,7 @@
 Здесь \mintinline{text}{Telescope n V} -- это тип $V + n$, определяемый рекурсивно следующим образом:
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     \function
     Telescope
         (n : Nat)
@@ -58,7 +58,7 @@
 Второй тонкий момент связан с реализацией преобразования из монадических термов в неименованные. Мы могли бы определить его следующим образом:
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     \function
     delta
         {n : Nat}
@@ -73,7 +73,7 @@
 Однако в случае абстракции становится неочевидно, что этот код завершается. Поэтому в качестве примера определим тип \mintinline{text}{Fun n} очень похожий на \mintinline{text}{Fin n}(на самом деле -- они изоморфны друг другу):
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     \function
     Fun
         (n : Nat) : \Type <= \elim n
@@ -86,14 +86,14 @@
 Тогда преобразование в него определяется довольно просто:
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     \function
-    beta
+    delta
         {n : Nat}
         (t : FTerm (Fun n)) : ITerm n <= \elim t
             | FVar f        => IVar (to-fin f)
-            | FApp t1 t2    => IApp (beta t1) (beta t2)
-            | FLam t        => ILam (beta {suc n} t)
+            | FApp t1 t2    => IApp (delta t1) (delta t2)
+            | FLam t        => ILam (delta {suc n} t)
   \end{minted}
   \caption{Работающий вариант определения преобразования монадического терма в неименованный.}
 \end{listing}

@@ -3,7 +3,7 @@
 Как уже упоминалось в разделах~\ref{sec:lambda} и~\ref{sec:index}, неименованное представление удобно для компьютерной реализации, так как, в частности, проверка термов на $\alpha$-эквивалентность сводится к обычной проверке на равенство. Ниже приведен пример определения типа данных для термов в данном представлении:
 
 \begin{listing}[H]
-  \begin{minted}[frame=lines, linenos]{text}
+  \begin{minted}[breaklines=true, frame=lines, linenos]{text}
     -- I is for index
     \data ITerm (n : Nat)
       | IVar (Fin n)
