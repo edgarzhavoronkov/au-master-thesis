@@ -325,6 +325,7 @@
 \renewcommand{\listingscaption}{Листинг}
 
 
+
 % альфа и бета эквивалентности
 \newcommand{\alphaeq}{=_{\alpha}}
 \newcommand{\betaeq}{=_{\beta}}
@@ -337,6 +338,7 @@
 \newtheorem{lemma}{Лемма}
 \theoremstyle{definition}
 \newtheorem*{definition}{Определение}
-
+\theoremstyle{remark}
+\newtheorem*{remark}{Замечание}
 % приложения
 \usepackage[titletoc]{appendix}
